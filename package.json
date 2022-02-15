@@ -1,0 +1,50 @@
+{
+  "name": "sanity-zoned-date-time-input",
+  "version": "1.0.0",
+  "description": "A dateTime input field with an in-build time zone selector",
+  "main": "ZonedDateTimeInput.tsx",
+  "type": "module",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/james-camilleri/sanity-zoned-date-time-input.git"
+  },
+  "author": "James Camilleri",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.16.12",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-react": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@sanity/base": "^2.26.0",
+    "@sanity/form-builder": "^2.26.0",
+    "@sanity/resolver": "^2.26.0",
+    "@sanity/ui": "^0.37.2",
+    "@testing-library/dom": "^8.11.3",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.4.0",
+    "babel-jest": "^27.4.6",
+    "babel-plugin-module-resolver": "^4.1.0",
+    "date-fns": "^2.28.0",
+    "jest": "^27.4.7",
+    "react": "^16.14.0",
+    "react-timezone-select": "^1.2.0",
+    "timezone-mock": "^1.3.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-timezone-select)/"
+    ],
+    "moduleNameMapper": {
+      "user-color": "<rootDir>/tests/dummy-module",
+      "presence": "<rootDir>/tests/dummy-module",
+      "^part:@sanity/base/user?": "<rootDir>/tests/dummy-module",
+      "^sanity:css?": "<rootDir>/tests/dummy-module"
+    }
+  }
+}
