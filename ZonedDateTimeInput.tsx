@@ -134,6 +134,7 @@ export default forwardRef(
           value={selectedTimeZone}
           onChange={onTimeZoneChange}
           name="time-zone"
+          date={valueForDisplay}
           styles={{
             control: (provided, state) => ({
               ...provided,

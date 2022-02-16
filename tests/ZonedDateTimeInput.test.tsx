@@ -116,6 +116,8 @@ function renderAndReturnTime(time, timeZone): string {
 
 describe('ZonedDateTimeInput', () => {
   describe('renders', () => {
+    const DATE = '1992-01-19T00:00:00.000Z'
+
     it('with no time or time zone set', () => {
       render(
         <ThemeProvider theme={studioTheme}>
@@ -172,9 +174,6 @@ describe('ZonedDateTimeInput', () => {
     })
   })
 
-  const TESTS_TO_ATTEMPT = 30
-  let testsAttempted = 0
-
   for (const mockedTimeZone of MOCKABLE_TIME_ZONES) {
     describe(`with time zone ${mockedTimeZone}`, () => {
       timezoneMock.register(mockedTimeZone)
@@ -217,7 +216,7 @@ describe('ZonedDateTimeInput', () => {
         },
         '1992-06-19 00:00': {
           UTC: '1992-06-19T00:00:00.000Z',
-          'Europe/London': '1992-06-18T00:23:00.000Z',
+          'Europe/London': '1992-06-18T23:00:00.000Z',
           'Europe/Amsterdam': '1992-06-18T22:00:00.000Z',
         },
         '1992-06-19 02:00': {
@@ -255,13 +254,10 @@ describe('ZonedDateTimeInput', () => {
       for (const time of Object.keys(TIMES_TO_TEST)) {
         describe(`correctly saves the time "${time}"`, () => {
           for (const timeZone of Object.keys(TIMES_TO_TEST[time])) {
-            if (testsAttempted === TESTS_TO_ATTEMPT) return
             it(`with the time zone "${timeZone}" selected`, async () => {
               const utcDateTime = renderAndReturnTime(time, timeZone)
               expect(utcDateTime).toBe(TIMES_TO_TEST[time][timeZone])
             })
-            // TODO: Remove this when you're done.
-            testsAttempted++
           }
         })
       }
