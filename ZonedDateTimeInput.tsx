@@ -1,3 +1,6 @@
+import TimezoneSelect, {
+  ITimezoneOption,
+} from '@james-camilleri/react-timezone-select'
 import { Props } from '@sanity/form-builder/dist/dts/inputs/DateInputs/DateTimeInput'
 import { DateTimeInput } from '@sanity/form-builder/lib/inputs/DateInputs/DateTimeInput'
 import PatchEvent, { set } from '@sanity/form-builder/PatchEvent'
@@ -10,7 +13,6 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import TimezoneSelect, { ITimezoneOption } from 'react-timezone-select'
 import { Required } from 'utility-types'
 
 interface ZonedDateTime {
