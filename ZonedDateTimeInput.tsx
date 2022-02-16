@@ -6,13 +6,8 @@ import { DateTimeInput } from '@sanity/form-builder/lib/inputs/DateInputs/DateTi
 import PatchEvent, { set } from '@sanity/form-builder/PatchEvent'
 import { Stack } from '@sanity/ui'
 import { add } from 'date-fns'
-import React, {
-  ForwardedRef,
-  forwardRef,
-  useCallback,
-  useRef,
-  useState,
-} from 'react'
+import uniqueId from 'lodash/uniqueId'
+import React, { ForwardedRef, forwardRef, useCallback, useState } from 'react'
 import { Required } from 'utility-types'
 
 interface ZonedDateTime {
@@ -80,7 +75,7 @@ function offsetTimeZone(
 // value the user selected.
 export default forwardRef(
   (props: Props, forwardedRef: ForwardedRef<HTMLInputElement>) => {
-    const { onChange, type, value } = props
+    const { onChange, onFocus, onBlur, type, value } = props
 
     const normalisedValue =
       typeof value === 'string' ? { dateTime: value } : value
@@ -133,6 +128,7 @@ export default forwardRef(
       true,
     )
 
+    const id = uniqueId('select-')
     const utcTime = `${dateTime?.split('T')[0]} ${dateTime
       ?.split('T')[1]
       ?.replace(/:00\..+/, '')}`
@@ -142,13 +138,18 @@ export default forwardRef(
         <DateTimeInput
           {...props}
           ref={forwardedRef}
+          onFocus={onFocus}
+          onBlur={onBlur}
           onChange={onDateTimeChange}
           value={valueForDisplay}
         />
-        <label id="a-label">Time zone</label>
+        <label htmlFor={id}>Time zone</label>
         <TimezoneSelect
-          value={selectedTimeZone}
+          id={id}
+          onFocus={onFocus}
+          onBlur={onBlur}
           onChange={onTimeZoneChange}
+          value={selectedTimeZone}
           name="time-zone"
           date={valueForDisplay}
           styles={type?.options?.styles}
