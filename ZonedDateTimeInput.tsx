@@ -135,44 +135,7 @@ export default forwardRef(
           onChange={onTimeZoneChange}
           name="time-zone"
           date={valueForDisplay}
-          styles={{
-            control: (provided, state) => ({
-              ...provided,
-              borderRadius: 0,
-              border: 0,
-              boxShadow: state.isFocused
-                ? 'inset 0 0 0 2px #39407a'
-                : 'inset 0 0 0 1px #bfc1c8',
-              minHeight: '35px',
-            }),
-            menu: provided => ({
-              ...provided,
-              borderRadius: 0,
-              marginTop: '5px',
-              zIndex: 100,
-            }),
-            dropdownIndicator: provided => ({
-              ...provided,
-              margin: '0.25rem',
-              padding: '4px',
-              width: '27px',
-              height: '27px',
-            }),
-            indicatorSeparator: provided => ({
-              ...provided,
-              margin: 0,
-              backgroundColor: '#bfc1c8',
-            }),
-            option: (provided, state) => ({
-              ...provided,
-              backgroundColor: state.isFocused
-                ? '#bdc5e3'
-                : state.isSelected
-                ? '#39407a'
-                : provided.backgroundColor,
-              color: state.isSelected ? '#fff' : provided.color,
-            }),
-          }}
+          styles={type?.options?.styles}
         />
         {type?.options?.showUtc ? (
           <code style={{ fontSize: '1rem', paddingLeft: '0.5rem' }}>
