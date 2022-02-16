@@ -11,12 +11,13 @@ import React, {
   useState,
 } from 'react'
 import TimezoneSelect, { ITimezoneOption } from 'react-timezone-select'
+import { Required } from 'utility-types'
 
 interface ZonedDateTime {
   dateTime: string
   timeZone: {
     value: string
-    offset?: number // TODO: This shouldn't really be optional
+    offset: number
   }
 }
 
@@ -25,44 +26,56 @@ const DEFAULT_TIME_ZONE = {
   offset: 0,
 }
 
-// TODO: Tmprove this description.
-// Offset an internal UTC date to be relative to the user's current time zone,
-// e.g. 10:00 UTC -> 12:00 UTC if the user in CEST (+2).
-function makeUtcTimeLocal(utcDate: string): Date {
+// Reframes a UTC date as if it were in the user's
+// current time zone, to enable easier time zone shifting.
+// e.g. 10:00 UTC -> 12:00 UTC if the user is currently in CEST (+2).
+function uctDateToLocal(utcDate: string): Date {
   const date = new Date(utcDate)
   const offsetInMinutes = date.getTimezoneOffset()
   return add(date, { minutes: offsetInMinutes * -1 })
 }
 
-function offsetTimeZone(
-  date: Date | string,
-  timeZone: ITimezoneOption | number,
-): Date {
-  const dateTime = typeof date === 'string' ? new Date(date) : date
-  const offset = typeof timeZone === 'number' ? timeZone : timeZone.offset
-  // date-fns rounds hours, so convert offset to minutes.
-  return add(dateTime, { minutes: offset * 60 * -1 })
-}
-
-// TODO: Merge into offset function?
-function revertTimeZoneOffset(
-  date: Date | string,
-  timeZone: ITimezoneOption,
-): Date {
-  if (!date) return null
-  const dateTime = typeof date === 'string' ? new Date(date) : date
-  // date-fns rounds hours, so convert offset to minutes.
-  return add(dateTime, { minutes: timeZone.offset * 60 })
-}
-
-// TODO: Merge into UTC offset function?
-function revertUtcOffset(date: Date | string): string {
+function localDateToUtc(date: Date | string): Date {
   if (!date) return null
   const dateTime = typeof date === 'string' ? new Date(date) : date
   const offsetInMinutes = dateTime.getTimezoneOffset()
-  return add(dateTime, { minutes: offsetInMinutes }).toISOString()
+  return add(dateTime, { minutes: offsetInMinutes })
 }
 
+function offsetTimeZone(
+  date: Date | string,
+  timeZone: ITimezoneOption | number,
+  reverse = false,
+): Date {
+  if (!date) return null
+
+  const dateTime = typeof date === 'string' ? new Date(date) : date
+  const offset = typeof timeZone === 'number' ? timeZone : timeZone.offset
+  const direction = reverse ? 1 : -1
+
+  // date-fns rounds hours, so convert offset to minutes.
+  return add(dateTime, { minutes: offset * 60 * direction })
+}
+
+// This component adjusts the DateTime selected from the default Sanity date
+// picker to be in the selected time zone. Since the default selector
+// automatically converts to UTC, the following steps are taken to "reverse
+// engineer" the UTC date corresponding to the selected date and time zone:
+//
+// 1. Reverse Sanity's UTC conversion
+// (e.g. A UTC time of 10:00 if the user is in CEST (UTC+2) means that the
+// user actually picked 12:00. By resetting the time to 12:00 we can correctly
+// apply the time zone offset.)
+//
+// 2. Offset the selected time by the correct amount.
+// (e.g. If the user selected Mountain Time (UTC-7), 12:00 would be 19:00 UTC -
+// 12:00 + 07:00.)
+//
+// 3. Store the calculated UTC time to maintain coherence with Sanity's time
+// storage format and the front end.
+//
+// 4. Revert steps 1 & 2 to show have Sanity's DateTime selector display the
+// value the user selected.
 export default forwardRef(
   (props: Props, forwardedRef: ForwardedRef<HTMLInputElement>) => {
     const { onChange, type, value } = props
@@ -72,7 +85,7 @@ export default forwardRef(
     const { dateTime, timeZone = DEFAULT_TIME_ZONE } = normalisedValue || {}
 
     const [selectedTimeZone, setSelectedTimeZone] =
-      useState<ITimezoneOption>(timeZone)
+      useState<Required<ITimezoneOption, 'offset'>>(timeZone)
 
     const updateZonedDateTime = useCallback(
       (newZonedDateTime: ZonedDateTime) =>
@@ -86,7 +99,7 @@ export default forwardRef(
         if (!inputDate) return
 
         const newDateTime = offsetTimeZone(
-          makeUtcTimeLocal(inputDate),
+          uctDateToLocal(inputDate),
           selectedTimeZone,
         ).toISOString()
 
@@ -112,9 +125,10 @@ export default forwardRef(
     )
 
     // Back-convert stored dateTime to display correctly on screen.
-    const valueForDisplay = revertTimeZoneOffset(
-      revertUtcOffset(dateTime),
+    const valueForDisplay = offsetTimeZone(
+      localDateToUtc(dateTime),
       timeZone,
+      true,
     )
 
     const utcTime = `${dateTime?.split('T')[0]} ${dateTime
